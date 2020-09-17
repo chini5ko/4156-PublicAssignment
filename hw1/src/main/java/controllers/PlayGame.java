@@ -48,9 +48,13 @@ class PlayGame {
       
 
       System.out.println(gameBoard.getPlayer2().getType());
-      //      System.out.println(gameBoard.boardJson());
       ctx.result(gameBoard.boardJson());
    
+    });
+    
+    app.get("/joingame", ctx -> {
+      System.out.println("player two joined");
+      ctx.redirect("/tictactoe.html?p=2");
     });
     
     /**
