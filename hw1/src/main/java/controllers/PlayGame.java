@@ -1,13 +1,18 @@
 package controllers;
 
 import io.javalin.Javalin;
-import java.io.IOException;
+
+//import java.io.IOException;
+import models.Player;
+import models.GameBoard;
 import java.util.Queue;
 import org.eclipse.jetty.websocket.api.Session;
 
 class PlayGame {
 
   private static final int PORT_NUMBER = 8080;
+  private static GameBoard gameBoard;
+
 
   private static Javalin app;
 
@@ -24,7 +29,30 @@ class PlayGame {
     app.post("/echo", ctx -> {
       ctx.result(ctx.body());
     });
+    
+    // My code starts here 
+    app.get("/newgame", ctx -> {
+      ctx.render("/public/tictactoe.html");
+    });
+    
+    
+    
+    app.post("/startgame", ctx -> {
+      
+    
+      String clientType = ctx.formParam("type");
+      char p1Type = clientType.charAt(0);
+      char p2Type = p1Type == 'X' ? 'O' : 'X';
 
+      gameBoard = new GameBoard(p1Type, p2Type);
+      
+
+      System.out.println(gameBoard.getPlayer2().getType());
+      //      System.out.println(gameBoard.boardJson());
+      ctx.result(gameBoard.boardJson());
+   
+    });
+    
     /**
      * Please add your end points here.
      * 
