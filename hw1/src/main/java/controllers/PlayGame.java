@@ -2,7 +2,7 @@ package controllers;
 
 import io.javalin.Javalin;
 
-//import java.io.IOException;
+import java.io.IOException;
 import models.Player;
 import models.GameBoard;
 import java.util.Queue;
@@ -31,8 +31,9 @@ class PlayGame {
     });
     
     // My code starts here 
+    
     app.get("/newgame", ctx -> {
-      ctx.render("/public/tictactoe.html");
+      ctx.redirect("tictactoe.html");
     });
     
     
@@ -42,19 +43,28 @@ class PlayGame {
     
       String clientType = ctx.formParam("type");
       char p1Type = clientType.charAt(0);
-      char p2Type = p1Type == 'X' ? 'O' : 'X';
 
-      gameBoard = new GameBoard(p1Type, p2Type);
+      gameBoard = new GameBoard();
+      gameBoard.setPlayer1(1, p1Type);
       
-
-      System.out.println(gameBoard.getPlayer2().getType());
+      ctx.status(200);
+      //System.out.println(gameBoard.getPlayer2().getType());
+     
       ctx.result(gameBoard.boardJson());
    
     });
     
     app.get("/joingame", ctx -> {
       System.out.println("player two joined");
+      char p2Type = gameBoard.getPlayer1().getType() == 'X' ? 'O' : 'X';
+      gameBoard.setPlayer1(2, p2Type);
+      sendGameBoardToAllPlayers(gameBoard.boardJson());
       ctx.redirect("/tictactoe.html?p=2");
+    });
+    
+    app.post("/move/:playerId", ctx -> {
+      System.out.println("move");
+      System.out.println(ctx.formParam("x"));
     });
     
     /**
@@ -92,6 +102,7 @@ class PlayGame {
         sessionPlayer.getRemote().sendString(gameBoardJson);
       } catch (IOException e) {
         // Add logger here
+        System.out.println("send error");
       }
     }
   }

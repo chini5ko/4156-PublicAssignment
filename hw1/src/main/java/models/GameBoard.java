@@ -20,12 +20,8 @@ public class GameBoard {
   
   /**
    * Construction for Game board.
-   * @param type1 player type
-   * @param type2 player type
   */
-  public GameBoard(char type1, char type2){
-    this.p1 = new Player(1, type1);
-    this.p2 = new Player(2, type2);
+  public GameBoard() {
     gameStarted = false;
     turn = 1;
     winner = 0;
@@ -38,6 +34,15 @@ public class GameBoard {
   
   public Player getPlayer1() { 
     return this.p1;
+  }
+  
+  public void setPlayer1(int id, char type) {
+    gameStarted = true;
+    this.p1 = new Player(id, type);
+  }
+  
+  public void setPlayer2(int id, char type) {
+    this.p2 = new Player(id, type);
   }
   
   public char[][] getBoardState() { 
