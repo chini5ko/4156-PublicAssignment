@@ -15,8 +15,14 @@ public class Move {
   /**
   * set player Move.
   */
-  public void setMove(Player player, int x, int y) { 
-    this.player = player;
+  public void setMove(GameBoard gameBoard, int playerId, int x, int y) { 
+  
+    if (playerId == 1) {
+      this.player = gameBoard.getPlayer1();
+    } else {
+      this.player = gameBoard.getPlayer2();
+    }
+    
     this.moveX = x;
     this.moveY = y;
   }

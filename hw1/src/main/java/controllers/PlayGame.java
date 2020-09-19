@@ -15,8 +15,6 @@ class PlayGame {
   private static GameBoard gameBoard;
   private static Message message;
   private static Move move;
-  private static Player player;
-
 
   private static Javalin app;
 
@@ -25,7 +23,7 @@ class PlayGame {
    */
   public static void main(final String[] args) {
     move = new Move();
-    player = new Player();
+    message = new Message();
 
     app = Javalin.create(config -> {
       config.addStaticFiles("/public");
@@ -65,8 +63,7 @@ class PlayGame {
       //start game 
       gameBoard.setGame(true);      
       
-      // initialization of message object 
-      message = new Message();
+      // server 
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
       
       
@@ -78,30 +75,20 @@ class PlayGame {
       int playerId = Integer.parseInt(ctx.pathParam("playerId"));
       int moveX = Integer.parseInt(ctx.formParam("x"));
       int moveY = Integer.parseInt(ctx.formParam("y")); 
-      //player = playerId == 1 ? gameBoard.getPlayer1() :  gameBoard.getPlayer2();
       
-      if (playerId == 1) {
-        move.setMove(gameBoard.getPlayer1(), moveX, moveY);
-      } else {
-        move.setMove(gameBoard.getPlayer2(), moveX, moveY);
-      }
-    
-      System.out.println(gameBoard.isMoveValid(move));
-      
+      // initialize move 
+      move.setMove(gameBoard, playerId, moveX, moveY);
+
+      // move alternative 
       if (gameBoard.isMoveValid(move)) {
-        gameBoard.playerMoves(move);
-        message.setMessage(true, 100, "");
+        gameBoard.playerMoves(move, message);
       } else {
-        System.out.println("wrong move");
-        message.setMessage(false, 400, "Wrong move");
+        gameBoard.setMessage(message);
       }
-      // is move valid 
       
-      // else warning 
-      
+      // responds 
       ctx.result(message.messageJson());
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
-
     });
 
     // Web sockets - DO NOT DELETE or CHANGE

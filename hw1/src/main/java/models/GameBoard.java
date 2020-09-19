@@ -75,9 +75,16 @@ public class GameBoard {
     return isValid;
   }
   
-  public void playerMoves(Move move) {
+  public void setMessage(Message message) {
+    message.setMessage(false, 400, "Wrong move");
+  }
+  
+  /**
+  * Player move.
+  */
+  public void playerMoves(Move move, Message message) {
     this.turn = move.getPlayer().getId() == 1 ? 2 : 1;
-    System.out.println(this.turn);
+    message.setMessage(true, 100, "");
     this.boardState[move.getMoveX()][move.getMoveY()] = move.getPlayer().getType();
   }
   
