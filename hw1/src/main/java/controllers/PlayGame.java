@@ -6,7 +6,6 @@ import java.util.Queue;
 import models.GameBoard;
 import models.Message;
 import models.Move;
-import models.Player;
 import org.eclipse.jetty.websocket.api.Session;
 
 class PlayGame {
@@ -79,13 +78,9 @@ class PlayGame {
       // initialize move 
       move.setMove(gameBoard, playerId, moveX, moveY);
 
-      // move alternative 
-      if (gameBoard.isMoveValid(move)) {
-        gameBoard.playerMoves(move, message);
-      } else {
-        gameBoard.setMessage(message);
-      }
-      
+      // load player's Move
+      gameBoard.playerMoves(move, message);
+    
       // responds 
       ctx.result(message.messageJson());
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
