@@ -6,6 +6,11 @@ public class Player {
 
   private int id;
   
+  public Player() {
+    this.id = 0;
+    this.type = '0';
+  }
+  
   public Player(int id, char type) {
     this.id = id;
     this.type = type;

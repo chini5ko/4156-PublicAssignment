@@ -1,17 +1,21 @@
 package controllers;
 
 import io.javalin.Javalin;
-
 import java.io.IOException;
-import models.Player;
-import models.GameBoard;
 import java.util.Queue;
+import models.GameBoard;
+import models.Message;
+import models.Move;
+import models.Player;
 import org.eclipse.jetty.websocket.api.Session;
 
 class PlayGame {
 
   private static final int PORT_NUMBER = 8080;
   private static GameBoard gameBoard;
+  private static Message message;
+  private static Move move;
+  private static Player player;
 
 
   private static Javalin app;
@@ -20,6 +24,8 @@ class PlayGame {
    * @param args Command line arguments
    */
   public static void main(final String[] args) {
+    move = new Move();
+    player = new Player();
 
     app = Javalin.create(config -> {
       config.addStaticFiles("/public");
@@ -36,56 +42,67 @@ class PlayGame {
       ctx.redirect("tictactoe.html");
     });
     
-    
-    
     app.post("/startgame", ctx -> {
       
-    
+      //set user info 
       String clientType = ctx.formParam("type");
       char p1Type = clientType.charAt(0);
 
+      // start game 
       gameBoard = new GameBoard();
       gameBoard.setPlayer1(1, p1Type);
       
       ctx.status(200);
-      //System.out.println(gameBoard.getPlayer2().getType());
-     
       ctx.result(gameBoard.boardJson());
    
     });
     
     app.get("/joingame", ctx -> {
-      System.out.println("player two joined");
+      //player info 
       char p2Type = gameBoard.getPlayer1().getType() == 'X' ? 'O' : 'X';
-      gameBoard.setPlayer1(2, p2Type);
-      sendGameBoardToAllPlayers(gameBoard.boardJson());
+      gameBoard.setPlayer2(2, p2Type);
+      
+      //start game 
+      gameBoard.setGame(true);      
+      
+      // initialization of message object 
+      message = new Message();
+      sendGameBoardToAllPlayers(gameBoard.boardJson());   
+      
+      
       ctx.redirect("/tictactoe.html?p=2");
     });
     
     app.post("/move/:playerId", ctx -> {
-      System.out.println("move");
-      System.out.println(ctx.formParam("x"));
-    });
+      // set move 
+      int playerId = Integer.parseInt(ctx.pathParam("playerId"));
+      int moveX = Integer.parseInt(ctx.formParam("x"));
+      int moveY = Integer.parseInt(ctx.formParam("y")); 
+      //player = playerId == 1 ? gameBoard.getPlayer1() :  gameBoard.getPlayer2();
+      
+      if (playerId == 1) {
+        move.setMove(gameBoard.getPlayer1(), moveX, moveY);
+      } else {
+        move.setMove(gameBoard.getPlayer2(), moveX, moveY);
+      }
     
-    /**
-     * Please add your end points here.
-     * 
-     * 
-     * 
-     * 
-     * Please add your end points here.
-     * 
-     * 
-     * 
-     * 
-     * Please add your end points here.
-     * 
-     * 
-     * 
-     * 
-     * Please add your end points here.
-     * 
-     */
+      System.out.println(gameBoard.isMoveValid(move));
+      
+      if (gameBoard.isMoveValid(move)) {
+        gameBoard.playerMoves(move);
+        message.setMessage(true, 100, "");
+      } else {
+        System.out.println("wrong move");
+        message.setMessage(false, 400, "Wrong move");
+      }
+      // is move valid 
+      
+      // else warning 
+      
+      ctx.result(message.messageJson());
+      sendGameBoardToAllPlayers(gameBoard.boardJson());   
+
+    });
 
     // Web sockets - DO NOT DELETE or CHANGE
     app.ws("/gameboard", new UiWebSocket());

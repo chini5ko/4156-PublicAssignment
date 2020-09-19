@@ -1,5 +1,7 @@
 package models;
+
 import com.google.gson.Gson;
+
 
 
 public class GameBoard {
@@ -36,8 +38,11 @@ public class GameBoard {
     return this.p1;
   }
   
+  public Player getPlayer2() { 
+    return this.p2;
+  }
+  
   public void setPlayer1(int id, char type) {
-    gameStarted = true;
     this.p1 = new Player(id, type);
   }
   
@@ -45,16 +50,35 @@ public class GameBoard {
     this.p2 = new Player(id, type);
   }
   
+  public void setGame(boolean state) {
+    gameStarted = state;
+  }
+  
   public char[][] getBoardState() { 
     return this.boardState;
   }
   
-  public Player getPlayer2() { 
-    return this.p2;
-  }
   
   public void setBoardState(char[][] boardState) {
     this.boardState = boardState;
+  }
+  
+  /**
+  * Move validity.
+  */
+  public boolean isMoveValid(Move move) {
+    boolean isValid = false;
+    if (this.boardState[move.getMoveX()][move.getMoveY()] == 0 
+        && this.turn == move.getPlayer().getId()) {
+      isValid = true;
+    }
+    return isValid;
+  }
+  
+  public void playerMoves(Move move) {
+    this.turn = move.getPlayer().getId() == 1 ? 2 : 1;
+    System.out.println(this.turn);
+    this.boardState[move.getMoveX()][move.getMoveY()] = move.getPlayer().getType();
   }
   
   public String boardJson() {
