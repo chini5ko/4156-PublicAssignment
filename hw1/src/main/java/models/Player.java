@@ -11,6 +11,7 @@ public class Player {
     this.type = '0';
   }
   
+  // initialize player 
   public Player(int id, char type) {
     this.id = id;
     this.type = type;

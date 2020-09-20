@@ -13,7 +13,7 @@ public class Move {
   }
   
   /**
-  * set player Move.
+  * set player's move.
   */
   public void setMove(GameBoard gameBoard, int playerId, int x, int y) { 
   

@@ -33,12 +33,14 @@ class PlayGame {
       ctx.result(ctx.body());
     });
     
-    // My code starts here 
+    // Hector's code 
     
+    // player 1 join the game 
     app.get("/newgame", ctx -> {
       ctx.redirect("tictactoe.html");
     });
     
+    // player 1 starts the game
     app.post("/startgame", ctx -> {
       
       //set user info 
@@ -49,11 +51,13 @@ class PlayGame {
       gameBoard = new GameBoard();
       gameBoard.setPlayer1(1, p1Type);
       
+      // responds 
       ctx.status(200);
       ctx.result(gameBoard.boardJson());
    
     });
     
+    // player 2 join the game 
     app.get("/joingame", ctx -> {
       //player info 
       char p2Type = gameBoard.getPlayer1().getType() == 'X' ? 'O' : 'X';
@@ -65,7 +69,7 @@ class PlayGame {
       // server 
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
       
-      
+      // respond 
       ctx.redirect("/tictactoe.html?p=2");
     });
     

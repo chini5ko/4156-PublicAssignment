@@ -21,7 +21,7 @@ public class Message {
   }
   
   /**
-  * Construction for Game board.
+  * Construction for Game board, and a setter.
   */
   public void setMessage(boolean mv, int code, String message) {
     this.moveValidity = mv;
@@ -29,6 +29,7 @@ public class Message {
     this.message = message;
   }
   
+  // return the message in json 
   public String messageJson() {
     Gson gson = new Gson(); 
     return gson.toJson(this);

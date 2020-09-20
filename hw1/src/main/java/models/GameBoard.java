@@ -36,6 +36,7 @@ public class GameBoard {
 
   }
   
+  
   public Player getPlayer1() { 
     return this.p1;
   }
@@ -66,7 +67,7 @@ public class GameBoard {
   }
   
   /**
-  * Move validity.
+  * check player's move validity  
   */
   public boolean isMoveValid(Move move) {
     boolean isValid = false;
@@ -79,12 +80,13 @@ public class GameBoard {
   }
   
   /**
-  * Set Message.
+  * Set message for wrong move, depending on the state 
   */
   public void setMessage(Message message, Move move) {
   
     message.setMessage(false, 400, "bad request");
   
+    // not the player turn 
     if (move.getPlayer().getId() != this.turn) {
       message.setMessage(false, 400, "It is not your turn, please wait!");
     } else {
@@ -93,6 +95,7 @@ public class GameBoard {
       }
     }
     
+    // check if the game is a draw 
     if (this.totalPlays >= 9) {
       this.isDraw = true;
       message.setMessage(false, 400, "game is a draw");
@@ -105,6 +108,7 @@ public class GameBoard {
   */
   public void playerMoves(Move move, Message message) {
   
+    // change the state of the board if the move is valid 
     if (this.turn == move.getPlayer().getId() && isMoveValid(move)) {
       this.turn = move.getPlayer().getId() == 1 ? 2 : 1;
       message.setMessage(true, 100, "");
@@ -116,10 +120,11 @@ public class GameBoard {
         message.setMessage(true, 100, "Player" + move.getPlayer().getId() + "won :)");
       }
     } else {
-      //not valid move 
+      // the move is not valid 
       this.setMessage(message, move);
     }
     
+    // the game is a draw 
     if (this.totalPlays >= 9) {
       this.isDraw = true;
       message.setMessage(false, 400, "game is a draw");
@@ -128,6 +133,7 @@ public class GameBoard {
   }
   
   
+  // check if player won 
   private boolean isPlayerAWinner(char type, int x, int y) {
   
     boolean isWinner = false;
@@ -172,6 +178,7 @@ public class GameBoard {
   
   }
   
+  // return the object JSON
   public String boardJson() {
     Gson gson = new Gson(); 
     return gson.toJson(this);
