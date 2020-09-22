@@ -125,7 +125,7 @@ public class GameBoard {
     }
     
     // the game is a draw 
-    if (this.totalPlays >= 9) {
+    if (this.totalPlays > 9) {
       this.isDraw = true;
       message.setMessage(false, 400, "game is a draw");
     } 
