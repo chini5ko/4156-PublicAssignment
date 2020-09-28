@@ -23,4 +23,5 @@
 hs_err_pid*
 
 # hw 1
-./hw1/*
+hw1/src/test/java/integration/GameTest.java
+

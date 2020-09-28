@@ -175,7 +175,7 @@ public class GameTest {
     // PLAYER 1 makes its first move 
     response = Unirest.post("http://localhost:8080/move/1").body("x=1&y=0").asString();
     responseBody = response.getBody();
-    //restStatus = response.getStatus();
+    //restStatus = response.getStatus(;
     
     // check JSON
     messageJson = new JSONObject(responseBody);
