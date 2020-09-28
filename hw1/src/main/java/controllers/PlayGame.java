@@ -8,7 +8,7 @@ import models.Message;
 import models.Move;
 import org.eclipse.jetty.websocket.api.Session;
 
-class PlayGame {
+public class PlayGame {
 
   private static final int PORT_NUMBER = 8080;
   private static GameBoard gameBoard;
