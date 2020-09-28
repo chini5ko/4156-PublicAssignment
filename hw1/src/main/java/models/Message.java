@@ -34,5 +34,9 @@ public class Message {
     Gson gson = new Gson(); 
     return gson.toJson(this);
   } 
+  
+  public int getCode() {
+    return this.code;
+  } 
 
 }

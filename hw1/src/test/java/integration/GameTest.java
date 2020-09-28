@@ -13,11 +13,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 
-//@TestMethodOrder(OrderAnnotation.class) 
+@TestMethodOrder(OrderAnnotation.class) 
 public class GameTest {
 	
   /**
@@ -35,20 +37,19 @@ public class GameTest {
   */
   @BeforeEach
   public void startNewGame() {
-    // Test if server is running. You need to have an endpoint /
-    // If you do not wish to have this end point, it is okay to not have anything in this method.
+    // Test if server is running. 
     HttpResponse<String> response = Unirest.get("http://localhost:8080/").asString();
     int restStatus = response.getStatus();
-
-    System.out.println("Before Each");
+    assertEquals(restStatus, 200);
+    //System.out.println("Before Each: " + restStatus);
   }
 	
   /**
-  * This is a test case to evaluate the newgame endpoint.
+  * A player cannot make a move until both players have joined the game.
   */
   @Test
   @Order(1)
-  public void newGameTest() {
+  public void playerCannotMoveUntilBothPlayersHaveJoined() {
     	
     // Create HTTP request and get response
     HttpResponse<String> response = Unirest.get("http://localhost:8080/newgame").asString();
@@ -56,9 +57,51 @@ public class GameTest {
         
     // Check assert statement (New Game has started)
     assertEquals(restStatus, 200);
-    System.out.println("Test New Game");
-  }
     
+    response = Unirest.post("http://localhost:8080/startgame").body("type=X").asString();
+    String responseBody = response.getBody();
+    
+    // --------------------------- CHECKING GAMEBOARD ----------------------------------
+        
+    // System.out.println("Start Game Response: " + responseBody);
+        
+    // Parse the response to JSON object
+    JSONObject jsonObject = new JSONObject(responseBody);
+
+    // Check if game started after player 1 joins: Game should not start at this point
+    assertEquals(false, jsonObject.get("gameStarted"));
+    assertEquals(1, jsonObject.get("turn"));
+    assertEquals(0, jsonObject.get("winner"));
+    assertEquals(false, jsonObject.get("isDraw"));
+
+    // ---------------------------- CHECKING GAMEBOARD -------------------------
+        
+    // GSON use to parse data to object
+    Gson gson = new Gson();
+    GameBoard gameBoard = gson.fromJson(jsonObject.toString(), GameBoard.class);
+    Player player1 = gameBoard.getPlayer1();
+        
+    // Check if player type is correct
+    assertEquals('X', player1.getType());
+
+ 
+    // player one make a move -------------------------------
+    response = Unirest.post("http://localhost:8080/move/1").body("x=0&y=0").asString();
+    responseBody = response.getBody();
+    //System.out.println("Player makes a move: " + responseBody);
+    restStatus = response.getStatus();
+    
+    // check JSON
+    JSONObject messageJson = new JSONObject(responseBody);
+    assertEquals(400, messageJson.get("code"));
+    assertEquals(false, messageJson.get("moveValidity"));
+    assertEquals("Player 2 has not joined", messageJson.get("message"));
+
+    // check HTTP request 
+    assertEquals(restStatus, 400);
+  }
+   
+  
   /**
   * This is a test case to evaluate the startgame endpoint.
   */
@@ -94,13 +137,14 @@ public class GameTest {
         
     System.out.println("Test Start Game");
   }
+  
     
   /**
   * This will run every time after a test has finished.
   */
   @AfterEach
   public void finishGame() {
-    System.out.println("After Each");
+    System.out.println("Finished Testing");
   }
     
   /**
@@ -110,6 +154,6 @@ public class GameTest {
   public static void close() {
     // Stop Server
     PlayGame.stop();
-    System.out.println("After All");
+    System.out.println("After All test are exec");
   }
 }

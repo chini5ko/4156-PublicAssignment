@@ -35,6 +35,9 @@ public class PlayGame {
     
     // Hector's code 
     
+    app.get("/", ctx -> {
+      ctx.status(200);
+    });
     // player 1 join the game 
     app.get("/newgame", ctx -> {
       ctx.redirect("tictactoe.html");
@@ -87,6 +90,7 @@ public class PlayGame {
     
       // responds 
       ctx.result(message.messageJson());
+      ctx.status(message.getCode());
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
     });
 

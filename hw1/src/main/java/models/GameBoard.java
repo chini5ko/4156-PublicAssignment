@@ -67,7 +67,7 @@ public class GameBoard {
   }
   
   /**
-  * check player's move validity  
+  * check player's move validity.
   */
   public boolean isMoveValid(Move move) {
     boolean isValid = false;
@@ -80,7 +80,7 @@ public class GameBoard {
   }
   
   /**
-  * Set message for wrong move, depending on the state 
+  * Set message for wrong move, depending on the state.
   */
   public void setMessage(Message message, Move move) {
   
@@ -93,6 +93,11 @@ public class GameBoard {
       if (this.boardState[move.getMoveX()][move.getMoveY()] != 0) {
         message.setMessage(false, 400, "Cell is taken :(");
       }
+    }
+    
+    // game has not started
+    if (!this.gameStarted) {
+      message.setMessage(false, 400, "Player 2 has not joined");
     }
     
     // check if the game is a draw 
@@ -109,7 +114,7 @@ public class GameBoard {
   public void playerMoves(Move move, Message message) {
   
     // change the state of the board if the move is valid 
-    if (this.turn == move.getPlayer().getId() && isMoveValid(move)) {
+    if (this.turn == move.getPlayer().getId() && isMoveValid(move) && this.gameStarted) {
       this.turn = move.getPlayer().getId() == 1 ? 2 : 1;
       message.setMessage(true, 100, "");
       this.boardState[move.getMoveX()][move.getMoveY()] = move.getPlayer().getType();
