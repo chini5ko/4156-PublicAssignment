@@ -85,7 +85,7 @@ public class GameTest {
     assertEquals('X', player1.getType());
 
  
-    // player one make a move -------------------------------
+    // player 1 make a move -------------------------------
     response = Unirest.post("http://localhost:8080/move/1").body("x=0&y=0").asString();
     responseBody = response.getBody();
     //System.out.println("Player makes a move: " + responseBody);
@@ -96,46 +96,91 @@ public class GameTest {
     assertEquals(400, messageJson.get("code"));
     assertEquals(false, messageJson.get("moveValidity"));
     assertEquals("Player 2 has not joined", messageJson.get("message"));
-
+    
     // check HTTP request 
-    assertEquals(restStatus, 400);
+    //assertEquals(restStatus, 400);
   }
    
-  
   /**
-  * This is a test case to evaluate the startgame endpoint.
+  * After game has started Player 1 always makes the first move..
   */
   @Test
   @Order(2)
-  public void startGameTest() {
+  public void player1MakesFirstMove() {
     	
-    // Create a POST request to startgame endpoint and get the body
-    // Remember to use asString() only once for an endpoint call. Every time you call asString(), 
-    //a new request will be sent to the endpoint.  Call it once and then use the data in the object.
-    HttpResponse<String> response = Unirest.post("http://localhost:8080/startgame").body("type=X").asString();
+    // Create HTTP request and get response
+    HttpResponse<String> response = Unirest.get("http://localhost:8080/newgame").asString();
+    int restStatus = response.getStatus();
+        
+    // Check assert statement (New Game has started)
+    assertEquals(restStatus, 200);
+    
+    response = Unirest.post("http://localhost:8080/startgame").body("type=X").asString();
     String responseBody = response.getBody();
-        
-    // --------------------------- JSONObject Parsing ----------------------------------
-        
-    System.out.println("Start Game Response: " + responseBody);
+    
+    // --------------------------- CHECKING INIT GAMEBOARD ----------------------------------
         
     // Parse the response to JSON object
-    JSONObject jsonObject = new JSONObject(responseBody);
+    JSONObject gameBoardJson = new JSONObject(responseBody);
 
     // Check if game started after player 1 joins: Game should not start at this point
-    assertEquals(false, jsonObject.get("gameStarted"));
-        
-    // ---------------------------- GSON Parsing -------------------------
+    assertEquals(false, gameBoardJson.get("gameStarted"));
+    assertEquals(1, gameBoardJson.get("turn"));
+    assertEquals(0, gameBoardJson.get("winner"));
+    assertEquals(false, gameBoardJson.get("isDraw"));
+
+    // ---------------------------- CHECKING GAMEBOARD -------------------------
         
     // GSON use to parse data to object
     Gson gson = new Gson();
-    GameBoard gameBoard = gson.fromJson(jsonObject.toString(), GameBoard.class);
+    GameBoard gameBoard = gson.fromJson(gameBoardJson.toString(), GameBoard.class);
     Player player1 = gameBoard.getPlayer1();
         
     // Check if player type is correct
     assertEquals('X', player1.getType());
-        
-    System.out.println("Test Start Game");
+    
+    
+    // GAME STARTED 
+    
+    // Player 2 joins 
+    response = Unirest.get("http://localhost:8080/joingame").asString();
+    restStatus = response.getStatus();
+    assertEquals(restStatus, 200);
+    
+    response = Unirest.get("http://localhost:8080/getGameBoard").asString();
+    responseBody = response.getBody();
+    gameBoardJson = new JSONObject(responseBody);
+    gameBoard = gson.fromJson(gameBoardJson.toString(), GameBoard.class);
+    player1 = gameBoard.getPlayer1();
+    
+    // Check if game started after player 1 joins: Game should not start at this point
+    assertEquals(true, gameBoardJson.get("gameStarted"));
+    assertEquals(1, gameBoardJson.get("turn"));
+    assertEquals(0, gameBoardJson.get("winner"));
+    assertEquals(false, gameBoardJson.get("isDraw"));
+    assertEquals('X', player1.getType());
+
+
+    // PLAYER 2 MAKES a Move before player 1 
+    response = Unirest.post("http://localhost:8080/move/2").body("x=0&y=0").asString();
+    responseBody = response.getBody();
+    restStatus = response.getStatus();
+    
+    // check JSON
+    JSONObject messageJson = new JSONObject(responseBody);
+    assertEquals(400, messageJson.get("code"));
+    assertEquals(false, messageJson.get("moveValidity"));
+    assertEquals("It is not your turn, please wait!", messageJson.get("message"));
+    
+    // PLAYER 1 makes its first move 
+    response = Unirest.post("http://localhost:8080/move/1").body("x=1&y=0").asString();
+    responseBody = response.getBody();
+    //restStatus = response.getStatus();
+    
+    // check JSON
+    messageJson = new JSONObject(responseBody);
+    assertEquals(100, messageJson.get("code"));
+    assertEquals(true, messageJson.get("moveValidity"));
   }
   
     

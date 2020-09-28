@@ -23,6 +23,7 @@ public class PlayGame {
   public static void main(final String[] args) {
     move = new Move();
     message = new Message();
+    int successCode = 200;
 
     app = Javalin.create(config -> {
       config.addStaticFiles("/public");
@@ -36,7 +37,7 @@ public class PlayGame {
     // Hector's code 
     
     app.get("/", ctx -> {
-      ctx.status(200);
+      ctx.status(successCode);
     });
     // player 1 join the game 
     app.get("/newgame", ctx -> {
@@ -55,9 +56,16 @@ public class PlayGame {
       gameBoard.setPlayer1(1, p1Type);
       
       // responds 
-      ctx.status(200);
+      ctx.status(successCode);
       ctx.result(gameBoard.boardJson());
    
+    });
+    
+    app.get("/getGameBoard", ctx -> {
+      
+      // responds 
+      ctx.status(successCode);
+      ctx.result(gameBoard.boardJson());
     });
     
     // player 2 join the game 
@@ -74,6 +82,8 @@ public class PlayGame {
       
       // respond 
       ctx.redirect("/tictactoe.html?p=2");
+      ctx.status(successCode);
+      
     });
     
     app.post("/move/:playerId", ctx -> {
@@ -82,15 +92,22 @@ public class PlayGame {
       int moveX = Integer.parseInt(ctx.formParam("x"));
       int moveY = Integer.parseInt(ctx.formParam("y")); 
       
+
+      
       // initialize move 
       move.setMove(gameBoard, playerId, moveX, moveY);
 
       // load player's Move
       gameBoard.playerMoves(move, message);
+
     
       // responds 
       ctx.result(message.messageJson());
-      ctx.status(message.getCode());
+      ctx.status(200);
+      System.out.println("game" + gameBoard.boardJson());
+      System.out.println("message" + message.messageJson());
+
+
       sendGameBoardToAllPlayers(gameBoard.boardJson());   
     });
 
